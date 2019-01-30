@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>你不知道的JavaScript：this和对象原型 | 刘尐六</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="this在调用时绑定，完全取决于函数的调用位置。 绑定规则默认绑定独立函数调用，绑定到全局对象，但严格模式下this会绑定到undefined12345function foo() &amp;#123;	console.log(this.a);&amp;#125;var a = 2;foo(); // 2">
+<meta name="keywords" content="前端,js">
+<meta property="og:type" content="article">
+<meta property="og:title" content="你不知道的JavaScript：this和对象原型">
+<meta property="og:url" content="http://yoursite.com/2017/05/18/你不知道JavaScript：this和对象原型/index.html">
+<meta property="og:site_name" content="刘尐六">
+<meta property="og:description" content="this在调用时绑定，完全取决于函数的调用位置。 绑定规则默认绑定独立函数调用，绑定到全局对象，但严格模式下this会绑定到undefined12345function foo() &amp;#123;	console.log(this.a);&amp;#125;var a = 2;foo(); // 2">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-01-30T11:53:30.035Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="你不知道的JavaScript：this和对象原型">
+<meta name="twitter:description" content="this在调用时绑定，完全取决于函数的调用位置。 绑定规则默认绑定独立函数调用，绑定到全局对象，但严格模式下this会绑定到undefined12345function foo() &amp;#123;	console.log(this.a);&amp;#125;var a = 2;foo(); // 2">
+  
+    <link rel="alternate" href="/atom.xml" title="刘尐六" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">刘尐六</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-你不知道JavaScript：this和对象原型" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/05/18/你不知道JavaScript：this和对象原型/" class="article-date">
+  <time datetime="2017-05-18T11:39:44.000Z" itemprop="datePublished">2017-05-18</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/前端/">前端</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      你不知道的JavaScript：this和对象原型
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>this在调用时绑定，完全取决于函数的调用位置。</p>
+<h2 id="绑定规则"><a href="#绑定规则" class="headerlink" title="绑定规则"></a>绑定规则</h2><h3 id="默认绑定"><a href="#默认绑定" class="headerlink" title="默认绑定"></a>默认绑定</h3><p>独立函数调用，绑定到全局对象，但严格模式下this会绑定到undefined<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">	<span class="built_in">console</span>.log(<span class="keyword">this</span>.a);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> a = <span class="number">2</span>;</span><br><span class="line">foo(); <span class="comment">// 2</span></span><br></pre></td></tr></table></figure></p>
+<a id="more"></a>
+<h3 id="隐式绑定"><a href="#隐式绑定" class="headerlink" title="隐式绑定"></a>隐式绑定</h3><p>当函数引用有上下文对象时，this绑定在这个上下文对象上，最后一层调用位置起作用<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">	<span class="built_in">console</span>.log(<span class="keyword">this</span>.a);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">	a: <span class="number">2</span>,</span><br><span class="line">	foo: foo</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> a = <span class="string">"hello"</span>;</span><br><span class="line">obj.foo(); <span class="comment">// 2</span></span><br></pre></td></tr></table></figure></p>
+<p><strong>隐式丢失</strong><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">	<span class="built_in">console</span>.log(<span class="keyword">this</span>.a);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">	a: <span class="number">2</span>,</span><br><span class="line">	foo: foo</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> bar = obj.foo; <span class="comment">//实际上指向foo本身，独立函数调用</span></span><br><span class="line"><span class="keyword">var</span> a = <span class="string">"hello world"</span>;</span><br><span class="line">bar(); <span class="comment">// hello world</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="显示绑定"><a href="#显示绑定" class="headerlink" title="显示绑定"></a>显示绑定</h3><p>call和apply,第一个参数是对象，函数调用时将this绑定到这个对象上<br>硬绑定<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">	<span class="built_in">console</span>.log(<span class="keyword">this</span>.a);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">	a: <span class="number">2</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> bar = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">	foo.call(obj);</span><br><span class="line">&#125;</span><br><span class="line">bar(); <span class="comment">// 2</span></span><br><span class="line">setTimeout(bar, <span class="number">1000</span>); <span class="comment">// 2</span></span><br><span class="line"><span class="keyword">var</span> a = <span class="string">"hello world"</span>;</span><br><span class="line">bar.call(<span class="built_in">window</span>); <span class="comment">// 2</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="new绑定"><a href="#new绑定" class="headerlink" title="new绑定"></a>new绑定</h3><p>用new调用函数时，会创建一个新对象，并将这个新对象绑定到函数调用的this上。<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params">a</span>) </span>&#123;</span><br><span class="line">	<span class="keyword">this</span>.a = a;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> bar = <span class="keyword">new</span> foo(<span class="number">2</span>); <span class="comment">//将返回的对象bar绑定在foo的this上</span></span><br><span class="line"><span class="built_in">console</span>.log(bar.a); <span class="comment">//2</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="绑定规则优先级"><a href="#绑定规则优先级" class="headerlink" title="绑定规则优先级"></a>绑定规则优先级</h2><h3 id="显示绑定高于隐式绑定"><a href="#显示绑定高于隐式绑定" class="headerlink" title="显示绑定高于隐式绑定"></a>显示绑定高于隐式绑定</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">	<span class="built_in">console</span>.log(<span class="keyword">this</span>.a);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> obj1 = &#123;</span><br><span class="line">	a: <span class="number">2</span>,</span><br><span class="line">	foo: foo</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> obj2 = &#123;</span><br><span class="line">	a: <span class="number">3</span>,</span><br><span class="line">	foo: foo</span><br><span class="line">&#125;</span><br><span class="line">obj1.foo();<span class="comment">//2</span></span><br><span class="line">obj2.foo();<span class="comment">//3</span></span><br><span class="line">obj1.foo.call(obj2);<span class="comment">//3,先将foo中的this绑定到obj2，在被obj1调用</span></span><br><span class="line">obj2.foo.call(obj1);<span class="comment">//2</span></span><br></pre></td></tr></table></figure>
+<h3 id="new绑定高于隐式绑定"><a href="#new绑定高于隐式绑定" class="headerlink" title="new绑定高于隐式绑定"></a>new绑定高于隐式绑定</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params">something</span>) </span>&#123;</span><br><span class="line">	<span class="keyword">this</span>.a = something;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> obj1 = &#123;</span><br><span class="line">	foo:foo</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">var</span> obj2 = &#123;&#125;;</span><br><span class="line">obj1.foo(<span class="number">2</span>);</span><br><span class="line"><span class="built_in">console</span>.log(obj1.a); <span class="comment">//2</span></span><br><span class="line">obj1.foo.call(obj2,<span class="number">3</span>);</span><br><span class="line"><span class="built_in">console</span>.log(obj2.a); <span class="comment">//3</span></span><br><span class="line"><span class="keyword">var</span> bar = <span class="keyword">new</span> obj1.foo(<span class="number">4</span>);</span><br><span class="line"><span class="built_in">console</span>.log(bar.a);<span class="comment">//4</span></span><br><span class="line"><span class="built_in">console</span>.log(obj1.a);<span class="comment">//2</span></span><br></pre></td></tr></table></figure>
+<h3 id="new绑定高于硬绑定（new-和call或者apply不能同时使用）"><a href="#new绑定高于硬绑定（new-和call或者apply不能同时使用）" class="headerlink" title="new绑定高于硬绑定（new 和call或者apply不能同时使用）"></a>new绑定高于硬绑定（new 和call或者apply不能同时使用）</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params">something</span>) </span>&#123;</span><br><span class="line">	<span class="keyword">this</span>.a = something;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> obj1 = &#123;&#125;;</span><br><span class="line"><span class="keyword">var</span> bar = foo.bind(obj1);</span><br><span class="line">bar(<span class="number">2</span>);</span><br><span class="line"><span class="built_in">console</span>.log(obj1.a); <span class="comment">//2</span></span><br><span class="line"><span class="keyword">var</span> baz = <span class="keyword">new</span> bar(<span class="number">3</span>);</span><br><span class="line"><span class="built_in">console</span>.log(obj1.a); <span class="comment">//2</span></span><br><span class="line"><span class="built_in">console</span>.log(baz.a);<span class="comment">//3</span></span><br></pre></td></tr></table></figure>
+<p>new中使用硬绑定，可以预先设置一些参数，使用new初始化时只需传入其他的参数，柯里化的一种<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params">p1, p2</span>) </span>&#123;</span><br><span class="line">	<span class="keyword">this</span>.val = p1 + p2;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> bar = foo.bind(<span class="literal">null</span>, <span class="string">"p1"</span>); <span class="comment">//不关心硬绑定到哪里，this会被new修改</span></span><br><span class="line"><span class="keyword">var</span> baz = <span class="keyword">new</span> bar(<span class="string">"p2"</span>);</span><br><span class="line"><span class="built_in">console</span>.log(baz.val);<span class="comment">//p1p2</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="绑定例外"><a href="#绑定例外" class="headerlink" title="绑定例外"></a>绑定例外</h2><h3 id="把null或者undefined传入call-apply-bind等，忽略this"><a href="#把null或者undefined传入call-apply-bind等，忽略this" class="headerlink" title="把null或者undefined传入call,apply,bind等，忽略this"></a>把null或者undefined传入call,apply,bind等，忽略this</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">	<span class="built_in">console</span>.log(<span class="keyword">this</span>.a);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> a = <span class="number">2</span>;</span><br><span class="line">foo.call(<span class="literal">null</span>);<span class="comment">//2,实际使用默认绑定</span></span><br></pre></td></tr></table></figure>
+<h3 id="间接引用"><a href="#间接引用" class="headerlink" title="间接引用"></a>间接引用</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">	<span class="built_in">console</span>.log(<span class="keyword">this</span>.a);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> a = <span class="number">2</span>;</span><br><span class="line"><span class="keyword">var</span> o = &#123;<span class="attr">a</span>:<span class="number">3</span>, <span class="attr">foo</span>:foo&#125;;</span><br><span class="line"><span class="keyword">var</span> p = &#123;<span class="attr">a</span>:<span class="number">4</span>&#125;;</span><br><span class="line">o.foo();<span class="comment">//3</span></span><br><span class="line">(p.foo = o.foo)();<span class="comment">//2,返回值是目标函数的引用，所以是默认绑定</span></span><br></pre></td></tr></table></figure>
+<h3 id="软绑定"><a href="#软绑定" class="headerlink" title="软绑定"></a>软绑定</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">	<span class="built_in">console</span>.log(<span class="string">"name: "</span> + <span class="keyword">this</span>.name);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> obj = &#123;<span class="attr">name</span>:obj&#125;,</span><br><span class="line">	obj2 = &#123;<span class="attr">name</span>:obj2&#125;,</span><br><span class="line">	obj3 = &#123;<span class="attr">name</span>:obj2&#125;;</span><br><span class="line"><span class="keyword">var</span> fooOBJ = foo.softBind(obj);</span><br><span class="line">fooOBJ(); <span class="comment">//name:obj</span></span><br><span class="line">obj2.foo = foo.softBind(obj);</span><br><span class="line">obj2.foo();<span class="comment">//name:obj2</span></span><br><span class="line">fooOBJ.call(obj3);<span class="comment">//name:obj3</span></span><br><span class="line">setTimeout(obj2.foo, <span class="number">10</span>);<span class="comment">//name:obj</span></span><br></pre></td></tr></table></figure>
+<h2 id="箭头函数"><a href="#箭头函数" class="headerlink" title="箭头函数"></a>箭头函数</h2><p>根据外层作用域来决定this，箭头函数的绑定无法修改<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="function">(<span class="params">a</span>) =&gt;</span> &#123;</span><br><span class="line">		<span class="comment">//this继承自foo()</span></span><br><span class="line">		<span class="built_in">console</span>.log(<span class="keyword">this</span>.a);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> obj1 = &#123;<span class="attr">a</span>:<span class="number">2</span>&#125;;</span><br><span class="line"><span class="keyword">var</span> obj2 = &#123;<span class="attr">a</span>:<span class="number">3</span>&#125;;</span><br><span class="line"><span class="keyword">var</span> bar = foo.call(obj1);</span><br><span class="line">bar.call(obj2);<span class="comment">//2</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h2><p>添加数字类属性，数组长度增加<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> myArray = [<span class="string">"foo"</span>, <span class="number">42</span>, <span class="string">"bar"</span>];</span><br><span class="line">myArray.baz = <span class="string">"baz"</span>;</span><br><span class="line"><span class="built_in">console</span>.log(myArray.length);</span><br><span class="line">myArray[<span class="string">"3"</span>] = <span class="string">"baz"</span>;</span><br><span class="line"><span class="built_in">console</span>.log(myArray.length);</span><br></pre></td></tr></table></figure></p>
+<h2 id="属性描述符"><a href="#属性描述符" class="headerlink" title="属性描述符"></a>属性描述符</h2><p>writable,是否可以修改属性的值；configurable，属性描述符是否可修改，为false的话禁止删除这个属性；Enumerable，可枚举</p>
+<h2 id="getter-setter"><a href="#getter-setter" class="headerlink" title="getter / setter"></a>getter / setter</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> myObject = &#123;</span><br><span class="line">	<span class="keyword">get</span> a() &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">this</span>._a_;</span><br><span class="line">	&#125;,</span><br><span class="line">	<span class="keyword">set</span> a(val) &#123;</span><br><span class="line">		<span class="keyword">this</span>._a_ = val * <span class="number">2</span>; </span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line">myObject.a = <span class="number">2</span>;</span><br><span class="line"><span class="built_in">console</span>.log(myObject.a);</span><br></pre></td></tr></table></figure>
+<p>属性的存在性，值为undefined或者不存在都返回<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="literal">undefined</span></span><br><span class="line"><span class="keyword">var</span> myObject = &#123;</span><br><span class="line">	a:<span class="number">2</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="string">"a"</span> <span class="keyword">in</span> myObject; <span class="comment">// true, 会检查原型链</span></span><br><span class="line"><span class="string">"b"</span> <span class="keyword">in</span> myObject; <span class="comment">//false</span></span><br><span class="line">myObject.hasOwnProperty(<span class="string">"a"</span>);<span class="comment">//true，只检查对象本身</span></span><br><span class="line">myObject.hasOwnProperty(<span class="string">"b"</span>);<span class="comment">//false</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="混入"><a href="#混入" class="headerlink" title="混入"></a>混入</h2><h3 id="显示混入"><a href="#显示混入" class="headerlink" title="显示混入"></a>显示混入</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">mixin</span>(<span class="params">sourceObj, targetObj</span>) </span>&#123;</span><br><span class="line">	<span class="keyword">for</span>(<span class="keyword">var</span> key <span class="keyword">in</span> sourceObj) &#123;</span><br><span class="line">		<span class="keyword">if</span>(!(key <span class="keyword">in</span> targetObj)) &#123;</span><br><span class="line">			targetObj[key] = sourceObj[key];</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> targetObj;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> Vehicle = &#123;</span><br><span class="line">	engine: <span class="number">1</span>,</span><br><span class="line">	ignition: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">		<span class="built_in">console</span>.log(<span class="string">"turning on my engine."</span>);</span><br><span class="line">	&#125;,</span><br><span class="line">	drive: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.ignition();</span><br><span class="line">		<span class="built_in">console</span>.log(<span class="string">"steering and moving forward!"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> Car = mixin(Vehicle, &#123;</span><br><span class="line">	wheels: <span class="number">4</span>,</span><br><span class="line">	drive: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">		Vehicle.drive.call(<span class="keyword">this</span>);</span><br><span class="line">		<span class="built_in">console</span>.log(<span class="string">"rolling on all"</span> + <span class="keyword">this</span>.wheels + <span class="string">"wheels!"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="混合混入"><a href="#混合混入" class="headerlink" title="混合混入"></a>混合混入</h3><p>先进行复制，之后再特殊化,效率低，不常用</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">mixin</span>(<span class="params">sourceObj, targetObj</span>) </span>&#123;</span><br><span class="line">	<span class="keyword">for</span>(<span class="keyword">var</span> key <span class="keyword">in</span> sourceObj) &#123;</span><br><span class="line">		targetObj[key] = sourceObj[key];</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> targetObj;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> Vehicle = &#123; </span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> Car = mixin(Vehicle, &#123;&#125;);</span><br><span class="line">mixin(&#123;</span><br><span class="line">	wheels: <span class="number">4</span>,</span><br><span class="line">	drive:<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">		<span class="comment">//...</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;, car);</span><br></pre></td></tr></table></figure>
+<h3 id="寄生继承"><a href="#寄生继承" class="headerlink" title="寄生继承"></a>寄生继承</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Vehicle</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">	<span class="keyword">this</span>.engine = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line">Vehicle.prototype.ignition = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">	<span class="built_in">console</span>.log(<span class="string">"turning on my engine."</span>);</span><br><span class="line">&#125;;</span><br><span class="line">Vehicle.prototype.drive = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">	<span class="keyword">this</span>.ignition();</span><br><span class="line">	<span class="built_in">console</span>.log(<span class="string">"steering and move forward!"</span>);</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Car</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">	<span class="keyword">var</span> car = <span class="keyword">new</span> Vehicle();</span><br><span class="line">	car.wheels = <span class="number">4</span>;</span><br><span class="line">	<span class="keyword">var</span> vehDrive = car.drive;</span><br><span class="line">	car.drive = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">		vehDrive.call(<span class="keyword">this</span>);</span><br><span class="line">		<span class="built_in">console</span>.log(<span class="string">"rolling on all"</span> + <span class="keyword">this</span>.wheels + <span class="string">"wheels!"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> car;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> mycar = <span class="keyword">new</span> Car();</span><br><span class="line">mycar.drive();</span><br></pre></td></tr></table></figure>
+<h3 id="隐式混入"><a href="#隐式混入" class="headerlink" title="隐式混入"></a>隐式混入</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> Something = &#123;</span><br><span class="line">	cool: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.greetng = <span class="string">"hello world"</span>;</span><br><span class="line">		<span class="keyword">this</span>.count = <span class="keyword">this</span>.count ? <span class="keyword">this</span>.count + <span class="number">1</span> : <span class="number">1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">Something.cool();</span><br><span class="line">Something.greetng; <span class="comment">// hello world</span></span><br><span class="line">Something.count; <span class="comment">// 1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> Another = &#123;</span><br><span class="line">	cool: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">		Something.cool.call(<span class="keyword">this</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line">Another.cool();</span><br><span class="line">Another.greetng; <span class="comment">//hello world</span></span><br><span class="line">Another.count; <span class="comment">// 1, count 不是共享状态</span></span><br></pre></td></tr></table></figure>
+<p><strong>隐式屏蔽</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> anotherObject = &#123;</span><br><span class="line">	a: <span class="number">2</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">var</span> myObject = <span class="built_in">Object</span>.create(anotherObject);</span><br><span class="line">anotherObject.a; <span class="comment">// 2</span></span><br><span class="line">myObject.a; <span class="comment">//2</span></span><br><span class="line">anotherObject.hasOwnProperty(<span class="string">"a"</span>); <span class="comment">//true</span></span><br><span class="line">myObject.hasOwnProperty(<span class="string">"a"</span>); <span class="comment">//false</span></span><br><span class="line">myObject.a++; <span class="comment">//隐式屏蔽</span></span><br><span class="line">anotherObject.a; <span class="comment">//2</span></span><br><span class="line">myObject.a;<span class="comment">//3</span></span><br><span class="line">myObject.hasOwnProperty(<span class="string">"a"</span>);<span class="comment">//true</span></span><br></pre></td></tr></table></figure>
+<h2 id="构造函数-调用"><a href="#构造函数-调用" class="headerlink" title="构造函数 || 调用"></a>构造函数 || 调用</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">nosp</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">	<span class="built_in">console</span>.log(<span class="string">"don't mind me!"</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> a = <span class="keyword">new</span> nosp(); <span class="comment">//don't mind me!</span></span><br><span class="line">a; <span class="comment">// &#123;&#125;</span></span><br></pre></td></tr></table></figure>
+<h2 id="委托模式"><a href="#委托模式" class="headerlink" title="委托模式"></a>委托模式</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">Task = &#123;</span><br><span class="line">	setID: <span class="function"><span class="keyword">function</span>(<span class="params">ID</span>) </span>&#123;<span class="keyword">this</span>.id = ID;&#125;,</span><br><span class="line">	outputID: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;<span class="built_in">console</span>.log(<span class="keyword">this</span>.id);&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//让XYZ委托Task</span></span><br><span class="line">XYZ = <span class="built_in">Object</span>.create(Task);</span><br><span class="line"></span><br><span class="line">XYZ.prepareTask = <span class="function"><span class="keyword">function</span>(<span class="params">ID, Lable</span>) </span>&#123;</span><br><span class="line">	<span class="keyword">this</span>.setID(ID);</span><br><span class="line">	<span class="keyword">this</span>.Lable = Lable;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">XYZ.outputTaskDetails = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">	<span class="keyword">this</span>.outputID();</span><br><span class="line">	<span class="built_in">console</span>.log(<span class="keyword">this</span>.Lable);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/05/18/你不知道JavaScript：this和对象原型/" data-id="cjrj7fw8h000hgwtd9vvxndip" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/js/">js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/前端/">前端</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/05/22/cookie-sessionStorage和localStorage/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          cookie, sessionStorage, localStorage和userData
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/05/18/你不知道的JavaScript：作用域和闭包/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">你不知道的JavaScript：作用域和闭包</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/前端/">前端</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bower/">Bower</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Grunt/">Grunt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Sass/">Sass</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Yeoman/">Yeoman</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/">react</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/">webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/前端/">前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/高阶函数/">高阶函数</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Bower/" style="font-size: 10px;">Bower</a> <a href="/tags/Grunt/" style="font-size: 10px;">Grunt</a> <a href="/tags/Sass/" style="font-size: 13.33px;">Sass</a> <a href="/tags/Yeoman/" style="font-size: 10px;">Yeoman</a> <a href="/tags/js/" style="font-size: 16.67px;">js</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/webpack/" style="font-size: 10px;">webpack</a> <a href="/tags/前端/" style="font-size: 20px;">前端</a> <a href="/tags/高阶函数/" style="font-size: 10px;">高阶函数</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/01/30/test/">test hexo</a>
+          </li>
+        
+          <li>
+            <a href="/2019/01/30/hello-world/">Hello World</a>
+          </li>
+        
+          <li>
+            <a href="/2017/06/21/JavaScript设计模式与开发实践：高阶函数（一）/">JavaScript设计模式与开发实践：高阶函数（一）</a>
+          </li>
+        
+          <li>
+            <a href="/2017/06/21/基于react的照片墙实现过程中遇到的问题/">基于react的照片墙实现时使用的插件</a>
+          </li>
+        
+          <li>
+            <a href="/2017/06/01/Grunt-beginner/">Grunt-beginner</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 yanaliu<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
